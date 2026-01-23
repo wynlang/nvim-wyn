@@ -158,9 +158,9 @@ fn main() {
 
 ## Links
 
-- [Wyn Language](https://github.com/your-org/wyn-lang)
-- [Documentation](https://wyn-lang.org/docs)
-- [Examples](https://github.com/your-org/wyn-lang/tree/main/examples)
+- [Wyn Language](https://github.com/wyn-lang/wyn)
+- [Documentation](https://github.com/wyn-lang/wyn/tree/main/docs)
+- [Examples](https://github.com/wyn-lang/wyn/tree/main/examples)
 
 ## License
 
