@@ -1,48 +1,60 @@
-" Vim syntax file
+" Wyn syntax highlighting for Neovim
 " Language: Wyn
-" Maintainer: Wyn Team
-" Latest Revision: 2026-01-23
+" Maintainer: AO Design Inc
 
 if exists("b:current_syntax")
   finish
 endif
 
 " Keywords
-syn keyword wynKeyword fn var const struct enum impl trait type pub import module
+syn keyword wynKeyword fn var const struct enum impl trait type pub import export module async
 syn keyword wynConditional if else match case
-syn keyword wynRepeat while for
-syn keyword wynStatement return break continue
+syn keyword wynRepeat while for in
+syn keyword wynStatement return break continue spawn await
 syn keyword wynBoolean true false
 syn keyword wynConstant None Some Ok Err
 syn keyword wynSelf self super root
+syn keyword wynModifier mut
 
 " Types
-syn keyword wynType int float string bool void
-syn match wynType "\<[A-Z][a-zA-Z0-9_]*\>"
+syn keyword wynType int float string bool void ResultInt ResultString OptionInt OptionString
 
-" Comments
-syn keyword wynTodo contained TODO FIXME XXX NOTE
-syn match wynComment "//.*$" contains=wynTodo
-syn region wynComment start="/\*" end="\*/" contains=wynTodo
-
-" Strings
-syn region wynString start=+"+ skip=+\\\\\|\\"+ end=+"+ contains=wynStringInterpolation
-syn region wynString start=+'+ skip=+\\\\\|\\'+ end=+'+
-syn match wynStringInterpolation "\${[^}]*}" contained
+" Built-in modules (25 modules)
+syn keyword wynModule File System Terminal HashMap HashSet Math Path DateTime Json Regex
+syn keyword wynModule Url Test Task Db Http Net Gui Audio StringBuilder
+syn keyword wynModule Crypto Encoding Os Uuid Log Process
 
 " Numbers
 syn match wynNumber "\<\d\+\>"
-syn match wynFloat "\<\d\+\.\d\+\>"
-syn match wynHex "\<0[xX][0-9a-fA-F_]\+\>"
-syn match wynBinary "\<0[bB][01_]\+\>"
+syn match wynNumber "\<\d\+\.\d\+\>"
+syn match wynNumber "\<0x[0-9a-fA-F]\+\>"
 
-" Functions
-syn match wynFunction "\<[a-zA-Z_][a-zA-Z0-9_]*\>\s*("me=e-1
+" Strings
+syn region wynString start='"' end='"' contains=wynEscape,wynInterp
+syn match wynEscape contained "\\[nrt\\\"0]"
+syn match wynEscape contained "\\x[0-9a-fA-F]\{2\}"
+syn region wynInterp contained start='\${' end='}' contains=TOP
+
+" Comments
+syn match wynComment "//.*$" contains=wynTodo
+syn keyword wynTodo contained TODO FIXME XXX NOTE HACK
+
+" Function definitions
+syn match wynFunction "\<fn\s\+\zs\w\+"
+
+" Struct/enum/trait names
+syn match wynTypeDef "\<struct\s\+\zs\w\+"
+syn match wynTypeDef "\<enum\s\+\zs\w\+"
+syn match wynTypeDef "\<trait\s\+\zs\w\+"
+
+" Method calls
+syn match wynMethodCall "\.\zs\w\+\ze("
 
 " Operators
-syn match wynOperator "[-+*/%=<>!&|^~]"
-syn match wynOperator "::"
+syn match wynOperator "[+\-*/%=<>!&|^~?]"
+syn match wynOperator "\.\."
 syn match wynOperator "->"
+syn match wynOperator "=>"
 
 " Highlighting
 hi def link wynKeyword Keyword
@@ -52,16 +64,18 @@ hi def link wynStatement Statement
 hi def link wynBoolean Boolean
 hi def link wynConstant Constant
 hi def link wynSelf Special
+hi def link wynModifier StorageClass
 hi def link wynType Type
+hi def link wynModule Structure
+hi def link wynNumber Number
+hi def link wynString String
+hi def link wynEscape SpecialChar
+hi def link wynInterp Special
 hi def link wynComment Comment
 hi def link wynTodo Todo
-hi def link wynString String
-hi def link wynStringInterpolation Special
-hi def link wynNumber Number
-hi def link wynFloat Float
-hi def link wynHex Number
-hi def link wynBinary Number
 hi def link wynFunction Function
+hi def link wynTypeDef TypeDef
+hi def link wynMethodCall Function
 hi def link wynOperator Operator
 
 let b:current_syntax = "wyn"
