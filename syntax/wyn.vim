@@ -8,7 +8,7 @@ endif
 
 " Keywords
 syn keyword wynKeyword fn var const struct enum impl trait type pub import export module
-syn keyword wynConditional if else match case
+syn keyword wynConditional if else match
 syn keyword wynRepeat while for in
 syn keyword wynStatement return break continue spawn await
 syn keyword wynBoolean true false
@@ -22,7 +22,7 @@ syn keyword wynType int float string bool void ResultInt ResultString OptionInt 
 " Built-in modules (25 modules)
 syn keyword wynModule File System Terminal HashMap HashSet Math Path DateTime Json Regex
 syn keyword wynModule Url Test Task Db Http Net Gui Audio StringBuilder
-syn keyword wynModule Crypto Encoding Os Uuid Log Process
+syn keyword wynModule Crypto Encoding Os Uuid Log Process Csv
 
 " Numbers
 syn match wynNumber "\<\d\+\>"

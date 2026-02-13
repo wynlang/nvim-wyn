@@ -15,7 +15,7 @@ function M.setup(opts)
         pattern = "wyn",
         callback = function()
             -- Keywords
-            vim.cmd([[syntax keyword wynKeyword fn var const if else for while return break continue match struct enum import export type spawn channel]])
+            vim.cmd([[syntax keyword wynKeyword fn var const struct enum impl trait type pub import export module spawn await return break continue if else match while for in mut]])
             vim.cmd([[syntax keyword wynType int float string bool void]])
             
             -- Comments
