@@ -1,167 +1,134 @@
-# Wyn Language Support for Neovim
+# Wyn for Neovim
 
-Syntax highlighting and language support for the Wyn programming language in Neovim.
+Syntax highlighting and language server support for [Wyn](https://wynlang.com).
 
 ## Features
 
-- **Syntax Highlighting** - Full syntax highlighting for Wyn code
-- **Filetype Detection** - Automatic detection of `.wyn` files
-- **Smart Indentation** - 4-space indentation with auto-indent
-- **Comment Support** - Line (`//`) and block (`/* */`) comments
-- **Code Folding** - Fold functions and blocks
-- **LSP Ready** - Compatible with nvim-lspconfig
+- Syntax highlighting for all keywords, 27 modules, operators, string interpolation
+- LSP integration via `wyn lsp` — completions, hover, go-to-definition, references, rename, format
+- Filetype detection for `.wyn` files
+- Smart indentation, code folding, comment toggling
 
-## Installation
+## Install
 
-### Using vim-plug
-
-```vim
-Plug 'wyn-lang/nvim-wyn'
-```
-
-### Using packer.nvim
+### lazy.nvim
 
 ```lua
-use 'wyn-lang/nvim-wyn'
+{ "wynlang/nvim-wyn", ft = "wyn" }
 ```
 
-### Manual Installation
+### packer.nvim
+
+```lua
+use "wynlang/nvim-wyn"
+```
+
+### vim-plug
+
+```vim
+Plug 'wynlang/nvim-wyn'
+```
+
+### Manual
 
 ```bash
-# Copy to Neovim config directory
-cp -r nvim-wyn/* ~/.config/nvim/
+cp -r syntax ftdetect ftplugin ~/.config/nvim/
 ```
 
-Or for specific directories:
-
-```bash
-mkdir -p ~/.config/nvim/syntax
-mkdir -p ~/.config/nvim/ftdetect
-mkdir -p ~/.config/nvim/ftplugin
-
-cp nvim-wyn/syntax/wyn.vim ~/.config/nvim/syntax/
-cp nvim-wyn/ftdetect/wyn.vim ~/.config/nvim/ftdetect/
-cp nvim-wyn/ftplugin/wyn.vim ~/.config/nvim/ftplugin/
-```
-
-## LSP Integration
-
-To use with Wyn's LSP server:
-
-### Using nvim-lspconfig
+## LSP
 
 Add to your `init.lua`:
 
 ```lua
+-- Using nvim-lspconfig
 local lspconfig = require('lspconfig')
 local configs = require('lspconfig.configs')
 
--- Define Wyn LSP
 if not configs.wyn then
   configs.wyn = {
     default_config = {
       cmd = {'wyn', 'lsp'},
       filetypes = {'wyn'},
       root_dir = lspconfig.util.root_pattern('wyn.toml', '.git'),
-      settings = {},
     },
   }
 end
 
--- Setup Wyn LSP
 lspconfig.wyn.setup{}
 ```
 
-### Manual LSP Setup
+Or without lspconfig:
 
-Add to your `init.vim`:
-
-```vim
-if executable('wyn')
-  au FileType wyn lua << EOF
+```lua
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = "wyn",
+  callback = function()
     vim.lsp.start({
-      name = 'wyn',
-      cmd = {'wyn', 'lsp'},
-      root_dir = vim.fs.dirname(vim.fs.find({'wyn.toml', '.git'}, { upward = true })[1]),
+      name = "wyn",
+      cmd = {"wyn", "lsp"},
+      root_dir = vim.fs.dirname(vim.fs.find({"wyn.toml", ".git"}, {upward = true})[1]),
     })
-EOF
-endif
+  end,
+})
 ```
 
-## Configuration
+Make sure `wyn` is in your PATH (`wyn install`).
 
-### Custom Indentation
+LSP provides:
+- **Completions** — all keywords, 27 modules with method hints, triggered by `.`
+- **Hover** — type information
+- **Go to Definition** — jump to function/struct definitions
+- **Find References** — find all usages
+- **Rename** — rename symbols across files
+- **Format** — format document
 
-```vim
-" In your init.vim or after/ftplugin/wyn.vim
-autocmd FileType wyn setlocal shiftwidth=2 tabstop=2
+## Keymaps
+
+Suggested additions to your config:
+
+```lua
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = "wyn",
+  callback = function()
+    vim.keymap.set("n", "<F5>", ":!wyn run %<CR>", {buffer = true})
+    vim.keymap.set("n", "<F6>", ":!wyn check %<CR>", {buffer = true})
+  end,
+})
 ```
 
-### Custom Key Mappings
+## Highlighted
 
-```vim
-" Build and run current file
-autocmd FileType wyn nnoremap <buffer> <F5> :!wyn run %<CR>
-
-" Watch current file
-autocmd FileType wyn nnoremap <buffer> <F6> :!wyn watch %<CR>
-```
-
-## Features
-
-### Syntax Highlighting
-
-- Keywords: `fn`, `var`, `const`, `struct`, `enum`, etc.
-- Types: `int`, `float`, `string`, `bool`, custom types
-- Comments: `//` and `/* */`
-- Strings: with `${}` interpolation
-- Numbers: decimal, hex, binary
-- Functions: function names
-- Operators: all Wyn operators
-
-### Smart Indentation
-
-- 4-space indentation (configurable)
-- Auto-indent on new lines
-- Smart indent for blocks
-
-### Code Folding
-
-- Fold functions
-- Fold blocks
-- Fold comments
+| Category | Tokens |
+|----------|--------|
+| Keywords | `fn var const struct enum impl trait type pub import export module` |
+| Flow | `return break continue spawn await if else match while for in` |
+| Modifiers | `mut` |
+| Types | `int float string bool void ResultInt OptionInt` |
+| Modules | `File System Terminal HashMap Math Path DateTime Json Regex Csv Http Net Db Task Gui Audio StringBuilder Crypto Encoding Os Uuid Log Process Test Url` |
+| Constants | `true false None Some Ok Err` |
 
 ## Example
 
 ```wyn
-// Wyn code with syntax highlighting
-fn main() {
-    var message = "Hello, Neovim!";
-    print(message);
-    return 0;
+struct Vec2 {
+    x: int
+    y: int
+
+    fn mag_sq(self) -> int {
+        return self.x * self.x + self.y * self.y
+    }
+}
+
+fn main() -> int {
+    var v = Vec2{x: 3, y: 4}
+    var squares = [i * i for i in 0..10]
+    println(v.mag_sq().to_string())
+    return 0
 }
 ```
-
-## Troubleshooting
-
-### Syntax highlighting not working
-
-1. Check filetype: `:set filetype?` (should show `wyn`)
-2. Reload syntax: `:set syntax=wyn`
-3. Check installation: `:echo $VIMRUNTIME`
-
-### LSP not starting
-
-1. Check wyn is in PATH: `:!which wyn`
-2. Test LSP manually: `:!wyn lsp`
-3. Check LSP logs: `:LspLog` (if using nvim-lspconfig)
 
 ## Links
 
 - [Wyn Language](https://github.com/wynlang/wyn)
 - [Documentation](https://github.com/wynlang/wyn/tree/main/docs)
-- [Examples](https://github.com/wynlang/wyn/tree/main/examples)
-
-## License
-
-See LICENSE file in the Wyn repository.
+- [wynlang.com](https://wynlang.com)
