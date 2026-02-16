@@ -7,7 +7,7 @@ if exists("b:current_syntax")
 endif
 
 " Keywords
-syn keyword wynKeyword fn var const struct enum impl trait type pub import export module
+syn keyword wynKeyword fn var const struct enum impl trait type pub import export module defer
 syn keyword wynConditional if else match
 syn keyword wynRepeat while for in
 syn keyword wynStatement return break continue spawn await
