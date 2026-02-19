@@ -7,7 +7,7 @@ if exists("b:current_syntax")
 endif
 
 " Keywords
-syn keyword wynKeyword fn var const struct enum impl trait type pub import export module defer
+syn keyword wynKeyword fn var const struct enum impl trait type pub import export module defer test before_each after_each
 syn keyword wynConditional if else match
 syn keyword wynRepeat while for in
 syn keyword wynStatement return break continue spawn await
@@ -18,6 +18,9 @@ syn keyword wynModifier mut
 
 " Types
 syn keyword wynType int float string bool void ResultInt ResultString OptionInt OptionString
+
+" Built-in functions
+syn keyword wynBuiltin println print assert assert_eq int_to_string
 
 " Built-in modules (25 modules)
 syn keyword wynModule File System Terminal HashMap HashSet Math Path DateTime Json Regex
@@ -67,6 +70,7 @@ hi def link wynSelf Special
 hi def link wynModifier StorageClass
 hi def link wynType Type
 hi def link wynModule Structure
+hi def link wynBuiltin Function
 hi def link wynNumber Number
 hi def link wynString String
 hi def link wynEscape SpecialChar
