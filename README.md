@@ -6,7 +6,7 @@ Syntax highlighting and language server support for [Wyn](https://wynlang.com).
 
 - Syntax highlighting for all keywords, 27 modules, operators, string interpolation
 - LSP integration via `wyn lsp` — completions, hover, go-to-definition, references, rename, format
-- Filetype detection for `.wyn` files
+- Filetype detection for `.wyn` and `.🐉` files
 - Smart indentation, code folding, comment toggling
 
 ## Install
