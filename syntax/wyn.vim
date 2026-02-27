@@ -22,10 +22,11 @@ syn keyword wynType int float string bool void ResultInt ResultString OptionInt 
 " Built-in functions
 syn keyword wynBuiltin println print assert assert_eq int_to_string
 
-" Built-in modules (25 modules)
-syn keyword wynModule File System Terminal HashMap HashSet Math Path DateTime Json Regex
+" Built-in modules (38 modules)
+syn keyword wynModule File System Terminal Color HashMap HashSet Math Path DateTime Time Json Regex
 syn keyword wynModule Url Test Task Db Http Net Gui Audio StringBuilder
-syn keyword wynModule Crypto Encoding Os Uuid Log Process Csv
+syn keyword wynModule Crypto Encoding Os Uuid Log Process Csv Template Socket Ws
+syn keyword wynModule Args Base64 Toml Bcrypt Random Web Smtp App
 
 " Numbers
 syn match wynNumber "\<\d\+\>"
