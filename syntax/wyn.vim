@@ -10,7 +10,7 @@ endif
 syn keyword wynKeyword fn var const struct enum impl trait type pub import export module defer test before_each after_each
 syn keyword wynConditional if else match
 syn keyword wynRepeat while for in
-syn keyword wynStatement return break continue spawn await
+syn keyword wynStatement return break continue spawn await await_all await_any
 syn keyword wynBoolean true false
 syn keyword wynConstant None Some Ok Err
 syn keyword wynSelf self super root
@@ -26,6 +26,7 @@ syn keyword wynBuiltin println print assert assert_eq int_to_string
 syn keyword wynModule File System Terminal Color HashMap HashSet Math Path DateTime Time Json Regex
 syn keyword wynModule Url Test Task Db Http Net Gui Audio StringBuilder
 syn keyword wynModule Crypto Encoding Os Uuid Log Process Csv Template Socket Ws
+syn keyword wynModule Args Base64 Toml Bcrypt Random Web Smtp App Shared
 syn keyword wynModule Args Base64 Toml Bcrypt Random Web Smtp App
 
 " Numbers
