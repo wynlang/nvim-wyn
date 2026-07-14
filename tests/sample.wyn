@@ -1,0 +1,15 @@
+// Sample Wyn program used by the headless plugin tests.
+struct Vec2 {
+    x: int
+    y: int
+}
+
+fn mag_sq(v: Vec2) -> int {
+    return v.x * v.x + v.y * v.y
+}
+
+fn main() -> int {
+    var v = Vec2{x: 3, y: 4}
+    println("${mag_sq(v)}")
+    return 0
+}

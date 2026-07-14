@@ -1,111 +1,105 @@
 # Wyn for Neovim
 
-Syntax highlighting and language server support for [Wyn](https://wynlang.com).
+Syntax highlighting and language-server support for [Wyn](https://wynlang.com).
 
 ## Features
 
-- Syntax highlighting for all keywords, 27 modules, operators, string interpolation
-- LSP integration via `wyn lsp` — completions, hover, go-to-definition, references, rename, format
-- Filetype detection for `.wyn` and `.🐉` files
-- Smart indentation, code folding, comment toggling
+- **Syntax highlighting** — all keywords, built-in modules, types, operators, string interpolation, comments
+- **LSP** via `wyn lsp` — live diagnostics (type-check only, never runs your code), completions, hover, go-to-definition, find references, rename
+- **Filetype detection** for `.wyn` and `.🐉` files
+- Smart indentation, code folding, comment toggling (`gcc`/`gc` with a commentstring)
 
 ## Install
 
 ### lazy.nvim
 
 ```lua
-{ "wynlang/nvim-wyn", ft = "wyn" }
+{
+  "wynlang/nvim-wyn",
+  ft = "wyn",
+  config = function() require("wyn").setup() end,
+}
 ```
 
 ### packer.nvim
 
 ```lua
-use "wynlang/nvim-wyn"
+use { "wynlang/nvim-wyn", config = function() require("wyn").setup() end }
 ```
 
 ### vim-plug
 
 ```vim
 Plug 'wynlang/nvim-wyn'
+" then, in lua:  require('wyn').setup()
 ```
 
 ### Manual
 
 ```bash
-cp -r syntax ftdetect ftplugin ~/.config/nvim/
+cp -r syntax ftdetect ftplugin lua ~/.config/nvim/
 ```
 
-## LSP
+Syntax highlighting works with **no configuration**. Calling `require('wyn').setup()`
+additionally wires up the language server.
 
-Add to your `init.lua`:
+## LSP setup
 
 ```lua
--- Using nvim-lspconfig
-local lspconfig = require('lspconfig')
-local configs = require('lspconfig.configs')
-
-if not configs.wyn then
-  configs.wyn = {
-    default_config = {
-      cmd = {'wyn', 'lsp'},
-      filetypes = {'wyn'},
-      root_dir = lspconfig.util.root_pattern('wyn.toml', '.git'),
-    },
-  }
-end
-
-lspconfig.wyn.setup{}
+require("wyn").setup()
 ```
 
-Or without lspconfig:
+That's it. `setup()`:
+
+- works **with or without** [nvim-lspconfig](https://github.com/neovim/nvim-lspconfig)
+  — if lspconfig is installed it registers the `wyn` server there (so `:LspInfo`
+  works); otherwise it uses Neovim's built-in `vim.lsp.start` and auto-starts the
+  server when you open a `.wyn` file,
+- resolves the project root from the nearest `wyn.toml` or `.git`,
+- requires the `wyn` binary on your `PATH` (install with `wyn install`).
+
+Options:
 
 ```lua
-vim.api.nvim_create_autocmd("FileType", {
-  pattern = "wyn",
-  callback = function()
-    vim.lsp.start({
-      name = "wyn",
-      cmd = {"wyn", "lsp"},
-      root_dir = vim.fs.dirname(vim.fs.find({"wyn.toml", ".git"}, {upward = true})[1]),
-    })
-  end,
+require("wyn").setup({
+  cmd = "wyn",          -- path to the wyn binary (default: "wyn")
+  auto_start = true,    -- start the LSP on FileType wyn (built-in path only)
+  on_attach = function(client, bufnr) end,  -- your keymaps, etc.
+  capabilities = require("cmp_nvim_lsp").default_capabilities(),  -- optional
 })
 ```
 
-Make sure `wyn` is in your PATH (`wyn install`).
+The language server provides:
 
-LSP provides:
-- **Completions** — all keywords, 27 modules with method hints, triggered by `.`
-- **Hover** — type information
-- **Go to Definition** — jump to function/struct definitions
-- **Find References** — find all usages
-- **Rename** — rename symbols across files
-- **Format** — format document
+- **Diagnostics** — errors/warnings from `wyn check` as you type (it type-checks
+  only; it never compiles-and-runs your program)
+- **Completions** — keywords, modules, and symbols (triggered by `.` / `:`)
+- **Hover** — symbol info
+- **Go to Definition** — jump to function/struct/enum declarations
+- **Find References** / **Rename** — across the open files
 
-## Keymaps
-
-Suggested additions to your config:
+## Suggested keymaps
 
 ```lua
+require("wyn").setup({
+  on_attach = function(_, bufnr)
+    local map = function(k, fn) vim.keymap.set("n", k, fn, { buffer = bufnr }) end
+    map("gd", vim.lsp.buf.definition)
+    map("gr", vim.lsp.buf.references)
+    map("K",  vim.lsp.buf.hover)
+    map("<leader>rn", vim.lsp.buf.rename)
+  end,
+})
+
+-- Build / check the current file
 vim.api.nvim_create_autocmd("FileType", {
   pattern = "wyn",
   callback = function()
-    vim.keymap.set("n", "<F5>", ":!wyn run %<CR>", {buffer = true})
-    vim.keymap.set("n", "<F6>", ":!wyn check %<CR>", {buffer = true})
+    vim.keymap.set("n", "<F5>", ":!wyn run %<CR>",   { buffer = true })
+    vim.keymap.set("n", "<F6>", ":!wyn check %<CR>", { buffer = true })
   end,
 })
 ```
-
-## Highlighted
-
-| Category | Tokens |
-|----------|--------|
-| Keywords | `fn var const struct enum impl trait type pub import export module` |
-| Flow | `return break continue spawn await if else match while for in` |
-| Modifiers | `mut` |
-| Types | `int float string bool void ResultInt OptionInt` |
-| Modules | `File System Terminal HashMap Math Path DateTime Json Regex Csv Http Net Db Task Gui Audio StringBuilder Crypto Encoding Os Uuid Log Process Test Url` |
-| Constants | `true false None Some Ok Err` |
 
 ## Example
 
@@ -113,19 +107,32 @@ vim.api.nvim_create_autocmd("FileType", {
 struct Vec2 {
     x: int
     y: int
+}
 
-    fn mag_sq(self) -> int {
-        return self.x * self.x + self.y * self.y
-    }
+fn mag_sq(v: Vec2) -> int {
+    return v.x * v.x + v.y * v.y
 }
 
 fn main() -> int {
     var v = Vec2{x: 3, y: 4}
-    var squares = [i * i for i in 0..10]
-    println(v.mag_sq().to_string())
+    println("${mag_sq(v)}")
     return 0
 }
 ```
+
+## Development / tests
+
+The plugin has a headless-Neovim test that loads it with a minimal config and
+asserts filetype detection, syntax rules, ftplugin settings, and (when the `wyn`
+binary is on `PATH`) LSP attachment:
+
+```bash
+bash tests/run.sh          # or: make test
+```
+
+CI runs it on Linux and macOS against a freshly built `wyn` compiler. The syntax
+keyword and module lists are kept in sync with the compiler
+(`src/lexer.c` / `src/module.c`).
 
 ## Links
 
