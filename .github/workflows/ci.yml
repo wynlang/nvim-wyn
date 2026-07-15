@@ -1,0 +1,39 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    name: Headless nvim test (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    steps:
+      - name: Checkout nvim-wyn
+        uses: actions/checkout@v4
+
+      - name: Install Neovim
+        uses: rhysd/action-setup-vim@v1
+        with:
+          neovim: true
+          version: stable
+
+      - name: Build the wyn compiler (for LSP tests)
+        run: |
+          git clone --depth 1 https://github.com/wynlang/wyn.git /tmp/wyn-src
+          make -C /tmp/wyn-src
+          echo "/tmp/wyn-src" >> "$GITHUB_PATH"
+
+      - name: Show versions
+        run: |
+          nvim --version | head -1
+          wyn version || true
+
+      - name: Run headless plugin tests
+        run: bash tests/run.sh

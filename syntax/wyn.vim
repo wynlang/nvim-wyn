@@ -6,28 +6,31 @@ if exists("b:current_syntax")
   finish
 endif
 
-" Keywords
-syn keyword wynKeyword fn var const struct enum impl trait type pub import export module defer test before_each after_each
+" Keywords (mirror src/lexer.c keyword_type — kept in sync with the compiler)
+syn keyword wynKeyword fn var const struct enum impl trait type pub import export from as extern defer test before_each after_each
 syn keyword wynConditional if else match
 syn keyword wynRepeat while for in
-syn keyword wynStatement return break continue spawn await await_all await_any
+syn keyword wynStatement return break continue spawn await await_all await_any parallel select channel yield
+syn keyword wynOperatorKw and or not
 syn keyword wynBoolean true false
 syn keyword wynConstant None Some Ok Err
 syn keyword wynSelf self super root
 syn keyword wynModifier mut
 
 " Types
-syn keyword wynType int float string bool void ResultInt ResultString OptionInt OptionString
+syn keyword wynType int float string bool void ptr char
+syn keyword wynType Option Result OptionInt OptionString OptionFloat OptionBool
+syn keyword wynType ResultInt ResultString ResultFloat ResultBool HashMap HashSet
 
 " Built-in functions
-syn keyword wynBuiltin println print assert assert_eq int_to_string
+syn keyword wynBuiltin println print assert assert_eq range
 
-" Built-in modules (38 modules)
-syn keyword wynModule File System Terminal Color HashMap HashSet Math Path DateTime Time Json Regex
-syn keyword wynModule Url Test Task Db Http Net Gui Audio StringBuilder
-syn keyword wynModule Crypto Encoding Os Uuid Log Process Csv Template Socket Ws
-syn keyword wynModule Args Base64 Toml Bcrypt Random Web Smtp App Shared
-syn keyword wynModule Args Base64 Toml Bcrypt Random Web Smtp App
+" Built-in modules (mirror src/module.c is_builtin_module — kept in sync)
+syn keyword wynModule math Math File System Path DateTime Time Json Http Regex
+syn keyword wynModule Random HashMap HashSet Terminal Color Test Env Net Url Task
+syn keyword wynModule Db Gui Audio StringBuilder Crypto Encoding Os Uuid Log Process
+syn keyword wynModule Csv Template String Data Socket Ws Args Base64 Toml Bcrypt
+syn keyword wynModule Web Smtp App Shared
 
 " Numbers
 syn match wynNumber "\<\d\+\>"
@@ -83,5 +86,6 @@ hi def link wynFunction Function
 hi def link wynTypeDef TypeDef
 hi def link wynMethodCall Function
 hi def link wynOperator Operator
+hi def link wynOperatorKw Operator
 
 let b:current_syntax = "wyn"

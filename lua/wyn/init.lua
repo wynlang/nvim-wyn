@@ -1,69 +1,101 @@
+-- nvim-wyn: Neovim support for the Wyn language.
+--
+-- Syntax highlighting and filetype detection are provided by the plugin's
+-- syntax/, ftdetect/, and ftplugin/ files (loaded automatically). This module
+-- wires up the LSP client (`wyn lsp`). Calling setup() is OPTIONAL — the plugin
+-- highlights .wyn files out of the box; setup() adds language-server features
+-- (diagnostics, hover, completion, go-to-definition, references, rename).
+--
+-- Usage:
+--   require('wyn').setup()                       -- defaults: cmd = "wyn"
+--   require('wyn').setup({ cmd = "/path/to/wyn",  -- custom binary
+--                          auto_start = true,      -- start LSP on FileType wyn (default true)
+--                          on_attach = fn, capabilities = caps })
+
 local M = {}
 
-function M.setup(opts)
-    opts = opts or {}
-    
-    -- Set up filetype detection
-    vim.filetype.add({
-        extension = {
-            wyn = 'wyn',
-        },
-    })
-    
-    -- Set up syntax highlighting
-    vim.api.nvim_create_autocmd("FileType", {
-        pattern = "wyn",
-        callback = function()
-            -- Keywords
-            vim.cmd([[syntax keyword wynKeyword fn var const struct enum impl trait type pub import export module spawn await return break continue if else match while for in mut]])
-            vim.cmd([[syntax keyword wynType int float string bool void]])
-            
-            -- Comments
-            vim.cmd([[syntax match wynComment "//.*$"]])
-            vim.cmd([[syntax region wynBlockComment start="/\*" end="\*/"]])
-            
-            -- Strings
-            vim.cmd([[syntax region wynString start='"' end='"' skip='\\"']])
-            
-            -- Numbers
-            vim.cmd([[syntax match wynNumber "\<\d\+\(\.\d\+\)\?"]])
-            
-            -- Highlighting
-            vim.cmd([[highlight link wynKeyword Keyword]])
-            vim.cmd([[highlight link wynType Type]])
-            vim.cmd([[highlight link wynComment Comment]])
-            vim.cmd([[highlight link wynBlockComment Comment]])
-            vim.cmd([[highlight link wynString String]])
-            vim.cmd([[highlight link wynNumber Number]])
+local function root_dir(fname)
+  local found = vim.fs.find({ "wyn.toml", ".git" }, { upward = true, path = vim.fs.dirname(fname) })[1]
+  if found then
+    return vim.fs.dirname(found)
+  end
+  return vim.fn.getcwd()
+end
+
+-- Start the Wyn LSP for the current buffer using Neovim's built-in client.
+-- Works without nvim-lspconfig. Idempotent per buffer/root.
+local function start_builtin(opts, bufnr)
+  local fname = vim.api.nvim_buf_get_name(bufnr)
+  vim.lsp.start({
+    name = "wyn",
+    cmd = { opts.cmd, "lsp" },
+    root_dir = root_dir(fname),
+    on_attach = opts.on_attach,
+    capabilities = opts.capabilities,
+  }, { bufnr = bufnr })
+end
+
+-- Register with nvim-lspconfig if the user has it (so :LspInfo etc. work),
+-- otherwise fall back to the built-in client. Returns true if lspconfig handled it.
+local function try_lspconfig(opts)
+  local ok, lspconfig = pcall(require, "lspconfig")
+  if not ok then
+    return false
+  end
+  local configs = require("lspconfig.configs")
+  if not configs.wyn then
+    configs.wyn = {
+      default_config = {
+        cmd = { opts.cmd, "lsp" },
+        filetypes = { "wyn" },
+        root_dir = function(fname)
+          return root_dir(fname)
         end,
+        settings = {},
+      },
+    }
+  end
+  lspconfig.wyn.setup({
+    cmd = { opts.cmd, "lsp" },
+    on_attach = opts.on_attach,
+    capabilities = opts.capabilities,
+  })
+  return true
+end
+
+function M.setup(opts)
+  opts = opts or {}
+  opts.cmd = opts.cmd or "wyn"
+  if opts.auto_start == nil then
+    opts.auto_start = true
+  end
+
+  -- Ensure .wyn / .🐉 are detected as filetype "wyn" even if ftdetect didn't run.
+  vim.filetype.add({
+    extension = { wyn = "wyn", ["🐉"] = "wyn" },
+  })
+
+  if vim.fn.executable(opts.cmd) ~= 1 then
+    vim.notify(
+      ("nvim-wyn: '%s' not found in PATH — LSP features disabled. Install with `wyn install`.")
+        :format(opts.cmd),
+      vim.log.levels.WARN
+    )
+    return
+  end
+
+  local used_lspconfig = try_lspconfig(opts)
+
+  if opts.auto_start and not used_lspconfig then
+    -- Built-in fallback: start the server when a wyn buffer opens.
+    vim.api.nvim_create_autocmd("FileType", {
+      pattern = "wyn",
+      group = vim.api.nvim_create_augroup("NvimWynLsp", { clear = true }),
+      callback = function(args)
+        start_builtin(opts, args.buf)
+      end,
     })
-    
-    -- Set up LSP
-    local lspconfig_ok, lspconfig = pcall(require, 'lspconfig')
-    if not lspconfig_ok then
-        vim.notify('nvim-lspconfig not found. LSP features disabled.', vim.log.levels.WARN)
-        return
-    end
-    
-    local configs = require('lspconfig.configs')
-    
-    if not configs.wyn then
-        configs.wyn = {
-            default_config = {
-                cmd = { opts.cmd or 'wyn', 'lsp' },
-                filetypes = { 'wyn' },
-                root_dir = function(fname)
-                    return lspconfig.util.find_git_ancestor(fname) or vim.fn.getcwd()
-                end,
-                settings = {},
-            },
-        }
-    end
-    
-    lspconfig.wyn.setup({
-        on_attach = opts.on_attach,
-        capabilities = opts.capabilities,
-    })
+  end
 end
 
 return M
