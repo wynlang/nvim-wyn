@@ -29,6 +29,10 @@ local function start_builtin(opts, bufnr)
   vim.lsp.start({
     name = "wyn",
     cmd = { opts.cmd, "lsp" },
+    -- The server shells out to `<cmd> check` for diagnostics; tell it exactly
+    -- which binary via WYN_LSP_BIN so it doesn't fall back to `./wyn` relative
+    -- to the (unrelated) project root and silently produce no diagnostics.
+    cmd_env = { WYN_LSP_BIN = opts.cmd },
     root_dir = root_dir(fname),
     on_attach = opts.on_attach,
     capabilities = opts.capabilities,
@@ -57,6 +61,7 @@ local function try_lspconfig(opts)
   end
   lspconfig.wyn.setup({
     cmd = { opts.cmd, "lsp" },
+    cmd_env = { WYN_LSP_BIN = opts.cmd },
     on_attach = opts.on_attach,
     capabilities = opts.capabilities,
   })
