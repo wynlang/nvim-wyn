@@ -2,7 +2,7 @@
 --
 -- Syntax highlighting and filetype detection are provided by the plugin's
 -- syntax/, ftdetect/, and ftplugin/ files (loaded automatically). This module
--- wires up the LSP client (`wyn lsp`). Calling setup() is OPTIONAL — the plugin
+-- wires up the LSP client (`wyn lsp`). Calling setup() is OPTIONAL - the plugin
 -- highlights .wyn files out of the box; setup() adds language-server features
 -- (diagnostics, hover, completion, go-to-definition, references, rename).
 --
@@ -82,7 +82,7 @@ function M.setup(opts)
 
   if vim.fn.executable(opts.cmd) ~= 1 then
     vim.notify(
-      ("nvim-wyn: '%s' not found in PATH — LSP features disabled. Install with `wyn install`.")
+      ("nvim-wyn: '%s' not found in PATH - LSP features disabled. Install with `wyn install`.")
         :format(opts.cmd),
       vim.log.levels.WARN
     )

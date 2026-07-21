@@ -4,8 +4,8 @@ Syntax highlighting and language-server support for [Wyn](https://wynlang.com).
 
 ## Features
 
-- **Syntax highlighting** — all keywords, built-in modules, types, operators, string interpolation, comments
-- **LSP** via `wyn lsp` — live diagnostics (type-check only, never runs your code), completions, hover, go-to-definition, find references, rename
+- **Syntax highlighting** - all keywords, built-in modules, types, operators, string interpolation, comments
+- **LSP** via `wyn lsp` - live diagnostics (type-check only, never runs your code), completions, hover, go-to-definition, find references, rename
 - **Filetype detection** for `.wyn` and `.🐉` files
 - Smart indentation, code folding, comment toggling (`gcc`/`gc` with a commentstring)
 
@@ -52,7 +52,7 @@ require("wyn").setup()
 That's it. `setup()`:
 
 - works **with or without** [nvim-lspconfig](https://github.com/neovim/nvim-lspconfig)
-  — if lspconfig is installed it registers the `wyn` server there (so `:LspInfo`
+  - if lspconfig is installed it registers the `wyn` server there (so `:LspInfo`
   works); otherwise it uses Neovim's built-in `vim.lsp.start` and auto-starts the
   server when you open a `.wyn` file,
 - resolves the project root from the nearest `wyn.toml` or `.git`,
@@ -71,12 +71,12 @@ require("wyn").setup({
 
 The language server provides:
 
-- **Diagnostics** — errors/warnings from `wyn check` as you type (it type-checks
+- **Diagnostics** - errors/warnings from `wyn check` as you type (it type-checks
   only; it never compiles-and-runs your program)
-- **Completions** — keywords, modules, and symbols (triggered by `.` / `:`)
-- **Hover** — symbol info
-- **Go to Definition** — jump to function/struct/enum declarations
-- **Find References** / **Rename** — across the open files
+- **Completions** - keywords, modules, and symbols (triggered by `.` / `:`)
+- **Hover** - symbol info
+- **Go to Definition** - jump to function/struct/enum declarations
+- **Find References** / **Rename** - across the open files
 
 ## Suggested keymaps
 

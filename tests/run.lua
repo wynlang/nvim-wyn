@@ -1,6 +1,6 @@
 -- Headless test for nvim-wyn. Run via tests/run.sh (or the Makefile).
 -- Asserts the plugin loads, detects the wyn filetype, applies syntax +
--- ftplugin settings, and — when the `wyn` binary is on PATH — attaches the LSP
+-- ftplugin settings, and - when the `wyn` binary is on PATH - attaches the LSP
 -- and produces diagnostics. Exits 0 on success, 1 on any failure.
 
 local failures = 0
@@ -42,7 +42,7 @@ do
   ok(rule_has("wynKeyword", "struct"), "wynKeyword rule defines 'struct'")
   ok(rule_has("wynType", "int"), "wynType rule defines 'int'")
   ok(rule_has("wynModule", "Math"), "wynModule rule defines 'Math'")
-  -- 'module' was removed as a keyword — make sure it isn't re-introduced.
+  -- 'module' was removed as a keyword - make sure it isn't re-introduced.
   ok(not rule_has("wynKeyword", "module"), "wynKeyword does NOT include removed 'module'")
 end
 

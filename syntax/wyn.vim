@@ -6,7 +6,7 @@ if exists("b:current_syntax")
   finish
 endif
 
-" Keywords (mirror src/lexer.c keyword_type — kept in sync with the compiler)
+" Keywords (mirror src/lexer.c keyword_type - kept in sync with the compiler)
 syn keyword wynKeyword fn var const struct enum impl trait type pub import export from as extern defer test before_each after_each
 syn keyword wynConditional if else match
 syn keyword wynRepeat while for in
@@ -25,7 +25,7 @@ syn keyword wynType ResultInt ResultString ResultFloat ResultBool HashMap HashSe
 " Built-in functions
 syn keyword wynBuiltin println print assert assert_eq range
 
-" Built-in modules (mirror src/module.c is_builtin_module — kept in sync)
+" Built-in modules (mirror src/module.c is_builtin_module - kept in sync)
 syn keyword wynModule math Math File System Path DateTime Time Json Http Regex
 syn keyword wynModule Random HashMap HashSet Terminal Color Test Env Net Url Task
 syn keyword wynModule Db Gui Audio StringBuilder Crypto Encoding Os Uuid Log Process
